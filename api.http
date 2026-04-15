@@ -1,0 +1,197 @@
+### Tokonomad Backend API - REST Client Tests
+
+@baseUrl = http://localhost:3001
+@apiUrl = {{baseUrl}}/api
+
+### Health Check
+GET {{apiUrl}}/health
+
+### Root endpoint
+GET {{baseUrl}}/
+
+###############################################################################
+### TRANSACTIONS
+###############################################################################
+
+### Create Transaction - Mobile Legends 86 Diamonds
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "123456789",
+  "zoneId": "8888",
+  "gameId": "ml",
+  "gameName": "Mobile Legends",
+  "productId": "ml-regular-1",
+  "productName": "86 Diamonds",
+  "productDescription": "86 Diamonds Mobile Legends",
+  "amount": 20000,
+  "paymentMethod": "qris"
+}
+
+### Create Transaction - Mobile Legends 172 Diamonds
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "987654321",
+  "zoneId": "9999",
+  "gameId": "ml",
+  "gameName": "Mobile Legends",
+  "productId": "ml-regular-2",
+  "productName": "172 Diamonds",
+  "productDescription": "172 Diamonds Mobile Legends",
+  "amount": 40000,
+  "paymentMethod": "dana"
+}
+
+### Create Transaction - Free Fire (no zone ID)
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "555666777",
+  "gameId": "ff",
+  "gameName": "Free Fire",
+  "productId": "ff-regular-1",
+  "productName": "100 Diamonds",
+  "productDescription": "100 Diamonds Free Fire",
+  "amount": 15000,
+  "paymentMethod": "ovo"
+}
+
+### Get Transaction by ID (replace TRX_ID with actual transaction ID)
+GET {{apiUrl}}/transactions/TRX1234567890
+
+### Get All Transactions
+GET {{apiUrl}}/transactions
+
+### Get Transactions - Page 1, Limit 10
+GET {{apiUrl}}/transactions?page=1&limit=10
+
+### Get Transactions - Filter by User ID
+GET {{apiUrl}}/transactions?userId=123456789
+
+### Get Transactions - Filter by Status (PENDING)
+GET {{apiUrl}}/transactions?status=PENDING
+
+### Get Transactions - Filter by Status (PAID)
+GET {{apiUrl}}/transactions?status=PAID
+
+### Get Transactions - User + Status Filter
+GET {{apiUrl}}/transactions?userId=123456789&status=PAID
+
+### Get Transactions - Sorted by Total (DESC)
+GET {{apiUrl}}/transactions?sortBy=total&sortOrder=DESC
+
+### Get Transactions - Sorted by Created Date (ASC)
+GET {{apiUrl}}/transactions?sortBy=created_at&sortOrder=ASC
+
+### Get Transactions - Pagination Page 2
+GET {{apiUrl}}/transactions?page=2&limit=5
+
+###############################################################################
+### WEBHOOKS
+###############################################################################
+
+### Test Webhook Endpoint
+GET {{apiUrl}}/webhooks/test
+
+###############################################################################
+### VIEW DATABASE RECORDS
+###############################################################################
+
+### Get All Transactions (VIEW RECORDS)
+GET {{apiUrl}}/transactions
+
+### Get Transactions - Page 1, Limit 20
+GET {{apiUrl}}/transactions?page=1&limit=20
+
+### Get Transactions by User ID
+GET {{apiUrl}}/transactions?userId=123456789
+
+### Get Transactions by Status - PENDING
+GET {{apiUrl}}/transactions?status=PENDING
+
+### Get Transactions by Status - PAID
+GET {{apiUrl}}/transactions?status=PAID
+
+### Get Single Transaction by ID (replace with actual ID)
+GET {{apiUrl}}/transactions/TRX_REPLACE_WITH_ACTUAL_ID
+
+### Get Latest Transactions (sorted by date DESC)
+GET {{apiUrl}}/transactions?sortBy=created_at&sortOrder=DESC&limit=10
+
+### Simulate Xendit Webhook - PAID Status
+# Note: This requires valid webhook token in x-callback-token header
+POST {{apiUrl}}/webhooks/xendit
+Content-Type: application/json
+x-callback-token: test_webhook_token
+
+{
+  "id": "5f9a3fbd048619002130201b",
+  "external_id": "TOKONOMAD-abc123-def456",
+  "user_id": "123456789",
+  "status": "PAID",
+  "merchant_name": "Tokonomad",
+  "amount": 21000,
+  "paid_amount": 21000,
+  "paid_at": "2024-01-15T11:00:00.000Z",
+  "payer_email": "user@example.com",
+  "description": "Mobile Legends - 86 Diamonds",
+  "payment_method": "QRIS",
+  "payment_channel": "QRIS",
+  "currency": "IDR",
+  "updated": "2024-01-15T11:00:00.000Z",
+  "created": "2024-01-15T10:30:00.000Z"
+}
+
+### Simulate Xendit Webhook - EXPIRED Status
+POST {{apiUrl}}/webhooks/xendit
+Content-Type: application/json
+x-callback-token: test_webhook_token
+
+{
+  "id": "5f9a3fbd048619002130201c",
+  "external_id": "TOKONOMAD-xyz789-ghi012",
+  "status": "EXPIRED",
+  "amount": 42500,
+  "description": "Mobile Legends - 172 Diamonds",
+  "payment_method": "DANA",
+  "currency": "IDR",
+  "updated": "2024-01-16T10:30:00.000Z",
+  "created": "2024-01-15T10:30:00.000Z"
+}
+
+###############################################################################
+### ERROR CASES
+###############################################################################
+
+### Create Transaction - Missing Required Fields
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "123456789"
+}
+
+### Create Transaction - Invalid Game ID
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "123456789",
+  "gameId": "",
+  "gameName": "Mobile Legends",
+  "productId": "ml-1",
+  "productName": "86 Diamonds",
+  "amount": 20000
+}
+
+### Get Transaction - Invalid ID
+GET {{apiUrl}}/transactions/INVALID_ID
+
+### Invalid Endpoint
+GET {{apiUrl}}/invalid-endpoint
+
+###############################################################################

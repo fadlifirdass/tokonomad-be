@@ -1,0 +1,26 @@
+### Test Tokonomad Backend API
+@baseUrl = http://localhost:3001/api
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. Create Transaction - Mobile Legends
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "123456789",
+  "zoneId": "8888",
+  "gameId": "ml",
+  "gameName": "Mobile Legends",
+  "productId": "ml-1",
+  "productName": "86 Diamonds",
+  "amount": 20000,
+  "paymentMethod": "qris"
+}
+
+### 3. Get All Transactions
+GET {{baseUrl}}/transactions
+
+### 4. Get Transactions by User
+GET {{baseUrl}}/transactions?userId=123456789

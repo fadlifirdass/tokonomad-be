@@ -1,0 +1,181 @@
+### Tokonomad Backend API Testing (from Frontend workspace)
+
+@baseUrl = http://localhost:3001
+@apiUrl = {{baseUrl}}/api
+
+###############################################################################
+### HEALTH CHECK
+###############################################################################
+
+### 1. Health Check - Test if backend is running
+GET {{apiUrl}}/health
+
+### 2. Root endpoint
+GET {{baseUrl}}/
+
+###############################################################################
+### CREATE TRANSACTIONS (MOCK XENDIT MODE)
+###############################################################################
+
+### 3. Create Transaction - Mobile Legends 86 Diamonds (QRIS)
+# @name createTransaction1
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "123456789",
+  "zoneId": "8888",
+  "gameId": "ml",
+  "gameName": "Mobile Legends",
+  "productId": "ml-regular-1",
+  "productName": "86 Diamonds",
+  "productDescription": "86 Diamonds Mobile Legends",
+  "amount": 20000,
+  "paymentMethod": "qris"
+}
+
+### 4. Create Transaction - Mobile Legends 172 Diamonds (DANA)
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "987654321",
+  "zoneId": "9999",
+  "gameId": "ml",
+  "gameName": "Mobile Legends",
+  "productId": "ml-regular-2",
+  "productName": "172 Diamonds",
+  "productDescription": "172 Diamonds + 36 Bonus",
+  "amount": 40000,
+  "paymentMethod": "dana"
+}
+
+### 5. Create Transaction - Free Fire 100 Diamonds (OVO)
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "555666777",
+  "gameId": "ff",
+  "gameName": "Free Fire",
+  "productId": "ff-regular-1",
+  "productName": "100 Diamonds",
+  "productDescription": "100 Diamonds Free Fire",
+  "amount": 15000,
+  "paymentMethod": "ovo"
+}
+
+### 6. Create Transaction - PUBG UC (BCA VA)
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "111222333",
+  "gameId": "pubg",
+  "gameName": "PUBG Mobile",
+  "productId": "pubg-uc-1",
+  "productName": "60 UC",
+  "productDescription": "60 Unknown Cash",
+  "amount": 16000,
+  "paymentMethod": "bca"
+}
+
+###############################################################################
+### GET TRANSACTIONS
+###############################################################################
+
+### 7. Get All Transactions
+GET {{apiUrl}}/transactions
+
+### 8. Get Transactions - Page 1, Limit 5
+GET {{apiUrl}}/transactions?page=1&limit=5
+
+### 9. Get Transactions by User ID
+GET {{apiUrl}}/transactions?userId=123456789
+
+### 10. Get PENDING Transactions
+GET {{apiUrl}}/transactions?status=PENDING
+
+### 11. Get PAID Transactions
+GET {{apiUrl}}/transactions?status=PAID
+
+### 12. Get Transactions - User + Status
+GET {{apiUrl}}/transactions?userId=123456789&status=PENDING
+
+### 13. Get Transaction by ID (replace with actual ID from create response)
+GET {{apiUrl}}/transactions/TRX_REPLACE_WITH_ACTUAL_ID
+
+###############################################################################
+### SIMULATE WEBHOOKS (MOCK MODE)
+###############################################################################
+
+### 14. Test Webhook Endpoint
+GET {{apiUrl}}/webhooks/test
+
+### 15. Simulate Payment Success - Update Transaction to PAID
+# Replace TOKONOMAD-xxx with actual external_id from transaction
+POST {{apiUrl}}/webhooks/xendit
+Content-Type: application/json
+x-callback-token: test_webhook_token
+
+{
+  "id": "mock_inv_12345",
+  "external_id": "TOKONOMAD-REPLACE-WITH-ACTUAL-EXTERNAL-ID",
+  "user_id": "123456789",
+  "status": "PAID",
+  "merchant_name": "Tokonomad",
+  "amount": 21000,
+  "paid_amount": 21000,
+  "paid_at": "2024-01-15T11:00:00.000Z",
+  "payer_email": "user@example.com",
+  "description": "Mobile Legends - 86 Diamonds",
+  "payment_method": "QRIS",
+  "payment_channel": "QRIS",
+  "currency": "IDR",
+  "updated": "2024-01-15T11:00:00.000Z",
+  "created": "2024-01-15T10:30:00.000Z"
+}
+
+###############################################################################
+### ERROR TESTING
+###############################################################################
+
+### 16. Create Transaction - Missing Required Fields (should fail)
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "123456789"
+}
+
+### 17. Get Transaction - Invalid ID (should return 404)
+GET {{apiUrl}}/transactions/INVALID_ID_123
+
+###############################################################################
+### INTEGRATION TEST FLOW
+###############################################################################
+
+### STEP 1: Create a new transaction
+# @name step1_create
+POST {{apiUrl}}/transactions
+Content-Type: application/json
+
+{
+  "userId": "TEST123",
+  "zoneId": "7777",
+  "gameId": "ml",
+  "gameName": "Mobile Legends",
+  "productId": "test-package",
+  "productName": "TEST 100 Diamonds",
+  "amount": 25000,
+  "paymentMethod": "qris"
+}
+
+### STEP 2: Get the created transaction
+# Use the ID from step1_create response
+GET {{apiUrl}}/transactions/{{step1_create.response.body.data.transaction.id}}
+
+### STEP 3: Get all transactions for this user
+GET {{apiUrl}}/transactions?userId=TEST123
+
+###############################################################################
