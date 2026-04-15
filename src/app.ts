@@ -44,15 +44,15 @@ app.get('/', (_req, res) => {
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     endpoints: {
-      health: '/api/health',
-      transactions: '/api/transactions',
-      webhooks: '/api/webhooks',
+      health: '/health',
+      transactions: '/transactions',
+      webhooks: '/webhooks',
     },
   });
 });
 
-// API routes
-app.use('/api', routes);
+// API routes (mounted at root so /transactions, /webhooks, /health are accessible directly)
+app.use('/', routes);
 
 // Error handlers
 app.use(notFoundHandler);
